@@ -2,7 +2,7 @@
 
 Sileo 的 DEB 下载与本地仓库工具。将插件安装包保存在本地，按需选择版本下载、备份和重新安装。
 
-[官网](https://5hux1n.github.io/Doleo/) · [下载安装包](https://github.com/5hux1n/Doleo/releases/latest) · [插件源](https://apt.mjh.im/) · [反馈](https://doleo.goforit.si/)
+[官网](https://doleo.goforit.si/) · [下载安装包](https://github.com/5hux1n/Doleo/releases/latest) · [插件源](https://apt.mjh.im/) · [反馈](https://pingme.pm/doleo)
 
 ## 功能
 

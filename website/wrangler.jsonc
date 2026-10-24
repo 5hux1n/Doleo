@@ -1,0 +1,9 @@
+{
+  "name": "doleo-site",
+  "account_id": "6b8a237b0a76d94f27f6529527bfb617",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-24",
+  "workers_dev": false,
+  "assets": {"directory": "./public", "binding": "ASSETS", "run_worker_first": true},
+  "routes": []
+}
