@@ -1,0 +1,7 @@
+{
+	Filter = {
+		Bundles = ( "org.coolstar.SileoStore", "org.coolstar.SileoNightly", "org.coolstar.SileoBeta" );
+		Executables = ( "Sileo" );
+		Mode = "Any";
+	};
+}

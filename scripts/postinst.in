@@ -1,0 +1,21 @@
+#!@SHEBANG@
+# Doleo 安装后脚本：创建仓库目录并交给 mobile 用户（Sileo 以 mobile 身份运行）
+
+ROOT="@ROOT@"
+DATA="$ROOT@DATA_DIR@"
+
+case "$1" in
+    configure)
+        mkdir -p "$DATA/archive" "$DATA/tmp" || exit 1
+        if [ ! -f "$DATA/settings.json" ]; then
+            touch "$DATA/autobackup.off"
+        fi
+        chown 501:501 "$DATA" "$DATA/archive" "$DATA/tmp"
+        chmod 0755 "$DATA" "$DATA/archive" "$DATA/tmp"
+        [ -f "$DATA/settings.json" ] && chown 501:501 "$DATA/settings.json"
+        [ -f "$DATA/autobackup.off" ] && chown 501:501 "$DATA/autobackup.off"
+        chmod 0755 "$ROOT/usr/libexec/doleo/prebackup" 2>/dev/null
+        ;;
+esac
+
+exit 0
