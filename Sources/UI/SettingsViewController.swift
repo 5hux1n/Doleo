@@ -4,7 +4,7 @@ final class DKSettingsViewController: UITableViewController {
 
     private let aboutLinks: [(title: String, detail: String, url: String)] = [
         (DKL("作者"), "junhong", "https://mjh.im/"),
-        (DKL("反馈"), "doleo.goforit.si", "https://doleo.goforit.si/"),
+        (DKL("反馈"), "pingme.pm/doleo", "https://pingme.pm/doleo"),
         (DKL("插件源"), "apt.mjh.im", "https://apt.mjh.im/"),
         (DKL("赏杯咖啡"), DKL("支付宝"), "alipays://platformapi/startapp?saId=10000007&qrcode=https%3A%2F%2Fqr.alipay.com%2Ffkx180736inoxop5mkbqh83%3F_s%3Dweb-other&launchKey=c7f8d186-3e05-4668-a7eb-8cf336c2108f-1780370320745"),
         (DKL("赏杯咖啡"), "Ko-fi", "https://ko-fi.com/manjunhong")
@@ -38,7 +38,10 @@ final class DKSettingsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        section == 0 ? DKL("升级前保存旧版本，安装时保存原始 DEB。保留版本数为 0 表示不限。") : nil
+        guard section == 0 else { return nil }
+        return backupUnavailable
+            ? DKL("Rootless 已停用自动备份。保留版本数为 0 表示不限。")
+            : DKL("升级前保存旧版本，安装时保存原始 DEB。保留版本数为 0 表示不限。")
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -51,10 +54,10 @@ final class DKSettingsViewController: UITableViewController {
         switch (indexPath.section, indexPath.row) {
         case (0, 0):
             cell.textLabel?.text = DKL("升级前自动备份")
-            cell.accessoryView = makeSwitch(settings.autoBackup, #selector(toggleAutoBackup(_:)))
+            cell.accessoryView = makeBackupSwitch(settings.autoBackup, #selector(toggleAutoBackup(_:)))
         case (0, 1):
             cell.textLabel?.text = DKL("安装时自动备份")
-            cell.accessoryView = makeSwitch(settings.installBackup, #selector(toggleInstallBackup(_:)))
+            cell.accessoryView = makeBackupSwitch(settings.installBackup, #selector(toggleInstallBackup(_:)))
         case (0, 2):
             cell.textLabel?.text = DKL("下载时默认包含依赖")
             cell.accessoryView = makeSwitch(settings.includeDependencies, #selector(toggleDeps(_:)))
@@ -108,6 +111,15 @@ final class DKSettingsViewController: UITableViewController {
         default:
             break
         }
+    }
+
+    /// Rootless 包不再包含 APT 钩子，保留已保存的开关选择。
+    private var backupUnavailable: Bool { DKPaths.scheme == .rootless }
+
+    private func makeBackupSwitch(_ on: Bool, _ action: Selector) -> UISwitch {
+        let s = makeSwitch(backupUnavailable ? false : on, action)
+        s.isEnabled = !backupUnavailable
+        return s
     }
 
     private func makeSwitch(_ on: Bool, _ action: Selector) -> UISwitch {

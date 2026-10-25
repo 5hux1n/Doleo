@@ -104,3 +104,4 @@
 "商店返回了无效的授权信息" = "The store returned invalid authorization information.";
 "商店返回了无效的下载地址" = "The store returned an invalid download URL.";
 "商店授权失败，请在 Sileo 中确认登录状态" = "Store authorization failed. Check your sign-in status in Sileo.";
+"Rootless 已停用自动备份。保留版本数为 0 表示不限。" = "Automatic backup is disabled on rootless. Set the version limit to 0 for unlimited.";

@@ -46,7 +46,7 @@ endif
 
 DK_DATA_DIR = /var/lib/doleo
 
-DK_SED = sed -e 's|@DATA_DIR@|$(DK_DATA_DIR)|g' -e 's|@ROOT@|$(DK_ROOT)|g' -e 's|@SHEBANG@|$(DK_SHEBANG)|g'
+DK_SED = sed -e 's|@SCHEME@|$(THEOS_PACKAGE_SCHEME)|g' -e 's|@DATA_DIR@|$(DK_DATA_DIR)|g' -e 's|@ROOT@|$(DK_ROOT)|g' -e 's|@SHEBANG@|$(DK_SHEBANG)|g'
 # Theos 在 package 阶段统一添加方案前缀，staging 内不能再加一次 /var/jb。
 DK_STAGE = $(THEOS_STAGING_DIR)
 
@@ -67,11 +67,13 @@ internal-stage::
 	$(ECHO_NOTHING)cp Doleo-icon/png/package/icon-256.png "$(DK_STAGE)/usr/share/doleo/icon.png"$(ECHO_END)
 	$(ECHO_NOTHING)cp -R Resources/Doleo.bundle "$(DK_STAGE)/usr/share/doleo/"$(ECHO_END)
 	$(ECHO_NOTHING)cp Resources/entry*.png "$(DK_STAGE)/usr/share/doleo/"$(ECHO_END)
+ifneq ($(THEOS_PACKAGE_SCHEME),rootless)
 	$(ECHO_NOTHING)mkdir -p "$(DK_STAGE)/usr/libexec/doleo" "$(DK_STAGE)/etc/apt/apt.conf.d"$(ECHO_END)
 	$(ECHO_NOTHING)$(DK_SED) scripts/prebackup.in > "$(DK_STAGE)/usr/libexec/doleo/prebackup"$(ECHO_END)
 	$(ECHO_NOTHING)chmod 0755 "$(DK_STAGE)/usr/libexec/doleo/prebackup"$(ECHO_END)
 	$(ECHO_NOTHING)$(DK_SED) scripts/apt.conf.in > "$(DK_STAGE)/etc/apt/apt.conf.d/99doleo"$(ECHO_END)
 	$(ECHO_NOTHING)chmod 0644 "$(DK_STAGE)/etc/apt/apt.conf.d/99doleo"$(ECHO_END)
+endif
 	$(ECHO_NOTHING)mkdir -p "$(THEOS_STAGING_DIR)/DEBIAN"$(ECHO_END)
 	$(ECHO_NOTHING)$(DK_SED) scripts/postinst.in > "$(THEOS_STAGING_DIR)/DEBIAN/postinst"$(ECHO_END)
 	$(ECHO_NOTHING)$(DK_SED) scripts/postrm.in > "$(THEOS_STAGING_DIR)/DEBIAN/postrm"$(ECHO_END)

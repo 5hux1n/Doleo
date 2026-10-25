@@ -14,7 +14,13 @@ case "$1" in
         chmod 0755 "$DATA" "$DATA/archive" "$DATA/tmp"
         [ -f "$DATA/settings.json" ] && chown 501:501 "$DATA/settings.json"
         [ -f "$DATA/autobackup.off" ] && chown 501:501 "$DATA/autobackup.off"
-        chmod 0755 "$ROOT/usr/libexec/doleo/prebackup" 2>/dev/null
+        [ -f "$ROOT/usr/libexec/doleo/prebackup" ] && chmod 0755 "$ROOT/usr/libexec/doleo/prebackup" 2>/dev/null
+
+        # Rootless 停用 APT 钩子，清理已发布旧版留下的配置。
+        # 1.0.0 留下的 99doleo 由 dpkg 升级时自动删除；这里清理用户手动改名留下的文件。
+        if [ "@SCHEME@" = "rootless" ]; then
+            rm -f "$ROOT/etc/apt/apt.conf.d/99doleo" "$ROOT/etc/apt/apt.conf.d/99doleo.disabled"
+        fi
         ;;
 esac
 

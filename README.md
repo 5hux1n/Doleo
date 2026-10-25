@@ -8,10 +8,14 @@ Sileo 的 DEB 下载与本地仓库工具。将插件安装包保存在本地，
 
 - **仅下载不安装**：选择软件源中可用的版本，支持连同依赖下载。
 - **本地仓库**：集中管理 DEB，查看版本与下载来源，支持导出及交给 Sileo 安装。
-- **自动备份**：升级前保存旧版本，也可开启安装时备份，覆盖首次安装、升级和重装。
+- **自动备份（RootHide）**：升级前保存旧版本，也可开启安装时备份，覆盖首次安装、升级和重装。
 - **已购插件下载**：使用 Sileo 当前商店账户验证购买状态，获取授权后下载入仓。
 - **来源与校验**：醒目标记其他源版本；索引提供 SHA256 时校验下载文件。
 - **仓库管理**：设置版本保留数量，标记当前源中已不可用的版本。
+
+## 从 1.0.0 的 Rootless 版本更新
+
+如果 Sileo 已报 APT 钩子错误，请先用 Filza 打开 `/var/jb/etc/apt/apt.conf.d/`，将 `99doleo` 改名为 `99doleo.disabled`，再更新至 1.0.1。新版本会清理旧钩子配置，保留已保存的 DEB 和设置。
 
 ## 安装与使用
 
@@ -19,10 +23,10 @@ Sileo 的 DEB 下载与本地仓库工具。将插件安装包保存在本地，
 
 | 环境 | 安装包 |
 | --- | --- |
-| Rootless，iOS 15 及以上 | `Doleo_1.0.0_arm64.deb` |
-| RootHide，iOS 15 及以上 | `Doleo_1.0.0_arm64e.deb` |
+| Rootless，iOS 15 及以上 | `Doleo_1.0.1_arm64.deb` |
+| RootHide，iOS 15 及以上 | `Doleo_1.0.1_arm64e.deb` |
 
-软件包页顶部的 **Doleo** 可打开仓库；插件详情页安装按钮旁的图标提供下载与仓库入口。自动备份需在设置中手动开启。
+软件包页顶部的 **Doleo** 可打开仓库；插件详情页安装按钮旁的图标提供下载与仓库入口。RootHide 的自动备份需在设置中手动开启；Rootless 版已停用两项自动备份。
 
 下载已购插件前，请先在 Sileo 登录对应软件源账户，并打开该插件详情页。账户请求参数仅保存在内存，不写入仓库文件。
 
@@ -36,10 +40,10 @@ Sileo 的 DEB 下载与本地仓库工具。将插件安装包保存在本地，
 
 ```sh
 THEOS=/path/to/theos make clean
-LC_ALL=C THEOS=/path/to/theos make package THEOS_PACKAGE_SCHEME=rootless PACKAGE_VERSION=1.0.0 FINALPACKAGE=1
+LC_ALL=C THEOS=/path/to/theos make package THEOS_PACKAGE_SCHEME=rootless PACKAGE_VERSION=1.0.1 FINALPACKAGE=1
 
 THEOS=/path/to/theos-roothide make clean
-LC_ALL=C THEOS=/path/to/theos-roothide make package THEOS_PACKAGE_SCHEME=roothide PACKAGE_VERSION=1.0.0 FINALPACKAGE=1
+LC_ALL=C THEOS=/path/to/theos-roothide make package THEOS_PACKAGE_SCHEME=roothide PACKAGE_VERSION=1.0.1 FINALPACKAGE=1
 ```
 
 最终 DEB 输出至 `dist/`。

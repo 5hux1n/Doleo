@@ -2,7 +2,7 @@
 <title>Doleo</title>
 <link rel="canonical" href="https://doleo.goforit.si/">
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Doleo 为 Sileo 增加仅下载与本地仓库：任意版本只下载不安装，升级前自动保存旧版本，随时装回。">
+<meta name="description" content="Doleo 为 Sileo 增加仅下载与本地仓库：任意版本只下载不安装，保存插件安装包，需要时随时装回。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap">
@@ -195,7 +195,7 @@ h1, h2, h3, p { margin: 0; }
   <section class="intro" aria-labelledby="title">
     <div class="lead">
       <h1 id="title">Sileo 的<span class="b">仅下载</span>与本地仓库</h1>
-      <p>任意版本只下载、不安装，升级前自动留一份旧版，需要时一键装回。</p>
+      <p>任意版本只下载、不安装，保存在本地仓库，需要时一键装回。</p>
     </div>
     <div class="cta">
       <a class="btn" href="#install">添加源</a>
@@ -244,7 +244,7 @@ h1, h2, h3, p { margin: 0; }
     <section class="t darkt w2 lift">
       <div class="k">AUTO BACKUP</div>
       <h3>升级之前，先留一份旧版</h3>
-      <p>Sileo、Zebra 或 apt 升级前自动保存当前版本，可关闭或限制保留数量。</p>
+      <p>RootHide 支持在 Sileo、Zebra 或 apt 升级前保存当前版本。Rootless 已停用自动备份。</p>
       <div class="ways">
         <div class="way"><b>APT 缓存</b><span>还有原始 deb 时直接复制</span></div>
         <div class="way"><b>重新打包</b><span>缓存没有、源已下架时按已安装文件打包</span></div>
@@ -299,7 +299,7 @@ h1, h2, h3, p { margin: 0; }
 
 <script>
 // 发布前填好源地址和两个安装包链接；留空的项显示为「待提供」
-var CONFIG = { source: "https://apt.mjh.im/", rootless: "https://github.com/5hux1n/Doleo/releases/download/v1.0.0/Doleo_1.0.0_arm64.deb", roothide: "https://github.com/5hux1n/Doleo/releases/download/v1.0.0/Doleo_1.0.0_arm64e.deb", minIOS: "15", refApp: "Sileo", refVersion: "2.5.1" };
+var CONFIG = { source: "https://apt.mjh.im/", rootless: "https://github.com/5hux1n/Doleo/releases/download/v1.0.1/Doleo_1.0.1_arm64.deb", roothide: "https://github.com/5hux1n/Doleo/releases/download/v1.0.1/Doleo_1.0.1_arm64e.deb", minIOS: "15", refApp: "Sileo", refVersion: "2.5.1" };
 var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function ph(t) { var s = document.createElement("span"); s.className = "ph"; s.textContent = "待提供：" + t; return s; }
