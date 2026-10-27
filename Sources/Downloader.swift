@@ -10,6 +10,13 @@ struct DKDownloadResult {
 /// 只下载、不入队。完全独立于 Sileo 的 DownloadManager。
 final class DKDownloader {
 
+    /// 入库时写进元数据的来源：download（用户手动）/ install / upgrade（自动补存）
+    private let origin: String
+
+    init(origin: String = "download") {
+        self.origin = origin
+    }
+
     struct Progress {
         let index: Int       // 第几个（从 1 开始）
         let total: Int
@@ -127,7 +134,8 @@ final class DKDownloader {
                 verified = true
             }
             do {
-                try ArchiveStore.save(tempFile: staged, entry: entry, verified: verified, sha256: actual)
+                try ArchiveStore.save(tempFile: staged, entry: entry, verified: verified,
+                                      sha256: actual, origin: self.origin)
                 completion(nil)
             } catch {
                 try? fm.removeItem(at: staged)

@@ -28,10 +28,10 @@
 "删除" = "Delete";
 "删除 %@ 的全部仓库文件？" = "Delete all repository files for %@?";
 "删除此仓库文件？" = "Delete This Repository File?";
-"升级前保存旧版本，安装时保存原始 DEB。保留版本数为 0 表示不限。" = "Before upgrading, save the old version. On installation, save the original DEB. Set the version limit to 0 for unlimited.";
+"升级前保存旧版本，安装时保存原始 DEB。保留版本数为 0 表示不限。" = "After installing or upgrading, Doleo keeps the original DEB: it links the copy from the APT cache, or downloads that exact version from the source. Set the version limit to 0 for unlimited.";
 "升级前备份" = "Before-upgrade backup";
 "升级前备份（重新打包）" = "Before-upgrade backup (rebuilt)";
-"升级前自动备份" = "Back Up Before Upgrading";
+"升级前自动备份" = "Keep Replaced Versions";
 "取消" = "Cancel";
 "复制本地源条目" = "Copy Local Source Entry";
 "外部文件" = "Imported file";
@@ -40,7 +40,7 @@
 "好" = "OK";
 "存储" = "Storage";
 "安装时备份" = "Installation backup";
-"安装时自动备份" = "Back Up on Installation";
+"安装时自动备份" = "Keep Installed DEBs";
 "安装此版本" = "Install This Version";
 "导出" = "Export";
 "将一并下载：\n" = "Also download:\n";
@@ -104,4 +104,4 @@
 "商店返回了无效的授权信息" = "The store returned invalid authorization information.";
 "商店返回了无效的下载地址" = "The store returned an invalid download URL.";
 "商店授权失败，请在 Sileo 中确认登录状态" = "Store authorization failed. Check your sign-in status in Sileo.";
-"Rootless 已停用自动备份。保留版本数为 0 表示不限。" = "Automatic backup is disabled on rootless. Set the version limit to 0 for unlimited.";
+"Sileo 下载后立刻留存原始 DEB，装完收进仓库；没留存到的按版本号从软件源重新下载。保留版本数为 0 表示不限。" = "Doleo keeps the original DEB as soon as Sileo downloads it and adds it to the repository after installation. Anything it missed is downloaded again from the source by version. Set the version limit to 0 for unlimited.";

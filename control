@@ -1,10 +1,10 @@
 Package: im.mjh.doleo
 Name: Doleo
-Version: 1.0.1
+Version: 1.0.2
 Architecture: iphoneos-arm
 Description: Download and keep local DEB packages in Sileo.
-Maintainer: junhong <mail@mjh.im>
-Author: junhong
+Maintainer: Junhong
+Author: Junhong
 Section: Tweaks
 Depends: mobilesubstrate, dpkg
 Icon: file://@ROOT@/usr/share/doleo/icon.png

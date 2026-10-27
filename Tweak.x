@@ -104,5 +104,14 @@ static Class DKFindSwiftClass(NSString *simpleName) {
             Class bridge = DKBridgeClass();
             if (bridge) ((void (*)(id, SEL))objc_msgSend)(bridge, @selector(didLaunch));
         }];
+
+        // 装完/升级完回到 Sileo 时补存 DEB（不参与 APT 事务，只是事后扫描）
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification
+                                                          object:nil
+                                                           queue:[NSOperationQueue mainQueue]
+                                                      usingBlock:^(__unused NSNotification *note) {
+            Class bridge = DKBridgeClass();
+            if (bridge) ((void (*)(id, SEL))objc_msgSend)(bridge, @selector(didBecomeActive));
+        }];
     }
 }

@@ -61,14 +61,21 @@ enum DKPaths {
     static var archiveDir: String { dataDir + "/archive" }
     static var tmpDir: String { dataDir + "/tmp" }
     static var settingsFile: String { dataDir + "/settings.json" }
-    /// 给 shell 钩子读取的开关文件：存在即表示关闭"升级前自动备份"
-    static var autoBackupOffFlag: String { dataDir + "/autobackup.off" }
-    static var installBackupOnFlag: String { dataDir + "/installbackup.on" }
+    /// 上一次看到的已安装版本，用于识别"刚装完/刚升级完"
+    static var installedSnapshot: String { dataDir + "/installed.json" }
+    /// Sileo 下载后、apt-get clean 之前从 APT 缓存链接过来的原始 DEB，按包名分子目录
+    static var capturedDir: String { dataDir + "/captured" }
     static var backupLog: String { dataDir + "/backup.log" }
+    /// 1.0.x 的 APT 钩子开关文件，只在迁移旧设置时读取
+    static var legacyAutoBackupOffFlag: String { dataDir + "/autobackup.off" }
+    static var legacyInstallBackupFlag: String { dataDir + "/installbackup.on" }
+    static var legacyMigratedFlag: String { dataDir + "/.legacy-imported" }
 
     // MARK: - 系统 / APT 路径
 
     static var aptLists: String { rooted("/var/lib/apt/lists") }
+    /// APT 下载好的 DEB 落在这里；备份优先从这里链接原始文件
+    static var aptCacheDir: String { rooted("/var/cache/apt/archives") }
     static var sourcesDir: String { rooted("/etc/apt/sources.list.d") }
     static var dpkgStatus: String { rooted("/var/lib/dpkg/status") }
 
@@ -91,7 +98,7 @@ enum DKPaths {
 
     static func ensureDirectories() {
         let fm = FileManager.default
-        for dir in [archiveDir, tmpDir] where !fm.fileExists(atPath: dir) {
+        for dir in [archiveDir, tmpDir, capturedDir] where !fm.fileExists(atPath: dir) {
             try? fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
         }
     }
@@ -140,6 +147,7 @@ enum DpkgStatus {
     struct Installed {
         let package: String
         let version: String
+        let architecture: String
         let isHeld: Bool
     }
 
@@ -160,6 +168,26 @@ enum DpkgStatus {
         guard let status = st["Status"], let version = st["Version"] else { return nil }
         let words = status.split(separator: " ")
         guard words.count == 3, words[2] == "installed" else { return nil }
-        return Installed(package: package, version: version, isHeld: words[0] == "hold")
+        return Installed(package: package, version: version,
+                         architecture: st["Architecture"] ?? DKPaths.debArch,
+                         isHeld: words[0] == "hold")
+    }
+
+    /// 状态库里所有已安装的包（备份时用来识别版本变化）
+    static func all() -> [String: Installed] {
+        guard let data = FileManager.default.contents(atPath: DKPaths.dpkgStatus),
+              let text = String(data: data, encoding: .utf8) else { return [:] }
+        var result = [String: Installed]()
+        for raw in text.components(separatedBy: "\n\n") where !raw.isEmpty {
+            let st = ControlStanza(raw: raw)
+            guard let package = st["Package"], let version = st["Version"],
+                  let status = st["Status"] else { continue }
+            let words = status.split(separator: " ")
+            guard words.count == 3, words[2] == "installed" else { continue }
+            result[package] = Installed(package: package, version: version,
+                                        architecture: st["Architecture"] ?? DKPaths.debArch,
+                                        isHeld: words[0] == "hold")
+        }
+        return result
     }
 }

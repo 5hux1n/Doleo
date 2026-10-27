@@ -1,10 +1,13 @@
 #!@SHEBANG@
-# Doleo 卸载后脚本：普通卸载保留仓库，只有彻底清除（purge）才删除
+# Doleo 卸载后脚本：普通卸载保留仓库（只删掉内部的下载留存目录），只有彻底清除（purge）才删除
 
 ROOT="@ROOT@"
 DATA="$ROOT@DATA_DIR@"
 
 case "$1" in
+    remove)
+        rm -rf "$DATA/captured"
+        ;;
     purge)
         rm -rf "$DATA"
         ;;

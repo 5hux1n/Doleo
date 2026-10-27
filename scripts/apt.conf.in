@@ -1,3 +1,0 @@
-// Doleo：APT 替换已安装的包之前，先备份当前版本。
-// "|| true" 保证即使钩子出错也不会中断升级。
-DPkg::Pre-Install-Pkgs { "@ROOT@/usr/libexec/doleo/prebackup || true"; };

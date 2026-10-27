@@ -77,10 +77,25 @@ final class DKBridge: NSObject {
     @objc(didLaunch)
     static func didLaunch() {
         DKPaths.ensureDirectories()
+        DKSettings.migrateLegacyOnce()
         DispatchQueue.global(qos: .utility).async {
             ArchiveStore.cleanTmp()
             try? ArchiveStore.rebuildLocalIndex()
         }
+        // Sileo 下载的 DEB 一落进 APT 缓存就留存一份（装完 Sileo 会 apt-get clean）
+        DKCapture.start()
+        // Sileo 跑完一个安装队列会发这个通知（PackageListManager.installChange），装完立刻补存
+        NotificationCenter.default.addObserver(forName: Notification.Name("SileoInstallChanged"),
+                                               object: nil, queue: nil) { _ in
+            DKBackup.start(force: true)
+        }
+        DKBackup.start()
+    }
+
+    /// 回到前台时补一次：覆盖用 Zebra、apt 命令行或 Filza 装的包
+    @objc(didBecomeActive)
+    static func didBecomeActive() {
+        DKBackup.start()
     }
 }
 

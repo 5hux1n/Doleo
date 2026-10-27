@@ -32,6 +32,7 @@ Doleo_LDFLAGS += -Wl,-rpath,@loader_path/.jbroot/Library/Frameworks \
                      -Wl,-rpath,@loader_path/.jbroot/usr/lib
 endif
 
+# 备份不参与 APT 事务：包里既没有 apt 钩子也不写 apt 配置，只需要 postinst/postrm。
 # 脚本里的路径：
 # - rootless：bootstrap 在 /var/jb，脚本解释器也在那里
 # - roothide：dpkg/apt/sh 由 vroot 把随机的 jbroot 映射成 "/"，所以按 rootful 写法即可
@@ -67,13 +68,6 @@ internal-stage::
 	$(ECHO_NOTHING)cp Doleo-icon/png/package/icon-256.png "$(DK_STAGE)/usr/share/doleo/icon.png"$(ECHO_END)
 	$(ECHO_NOTHING)cp -R Resources/Doleo.bundle "$(DK_STAGE)/usr/share/doleo/"$(ECHO_END)
 	$(ECHO_NOTHING)cp Resources/entry*.png "$(DK_STAGE)/usr/share/doleo/"$(ECHO_END)
-ifneq ($(THEOS_PACKAGE_SCHEME),rootless)
-	$(ECHO_NOTHING)mkdir -p "$(DK_STAGE)/usr/libexec/doleo" "$(DK_STAGE)/etc/apt/apt.conf.d"$(ECHO_END)
-	$(ECHO_NOTHING)$(DK_SED) scripts/prebackup.in > "$(DK_STAGE)/usr/libexec/doleo/prebackup"$(ECHO_END)
-	$(ECHO_NOTHING)chmod 0755 "$(DK_STAGE)/usr/libexec/doleo/prebackup"$(ECHO_END)
-	$(ECHO_NOTHING)$(DK_SED) scripts/apt.conf.in > "$(DK_STAGE)/etc/apt/apt.conf.d/99doleo"$(ECHO_END)
-	$(ECHO_NOTHING)chmod 0644 "$(DK_STAGE)/etc/apt/apt.conf.d/99doleo"$(ECHO_END)
-endif
 	$(ECHO_NOTHING)mkdir -p "$(THEOS_STAGING_DIR)/DEBIAN"$(ECHO_END)
 	$(ECHO_NOTHING)$(DK_SED) scripts/postinst.in > "$(THEOS_STAGING_DIR)/DEBIAN/postinst"$(ECHO_END)
 	$(ECHO_NOTHING)$(DK_SED) scripts/postrm.in > "$(THEOS_STAGING_DIR)/DEBIAN/postrm"$(ECHO_END)

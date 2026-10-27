@@ -4,23 +4,31 @@ import CommonCrypto
 // MARK: - 设置
 
 struct DKSettings: Codable {
-    /// 升级前自动备份当前已安装版本（由 APT 钩子执行）
+    /// 升级后补存被替换掉的旧版本
     var autoBackup = false
-    /// 与 APT 钩子共享开关文件，不额外写入 JSON。
-    var installBackup: Bool {
-        get { FileManager.default.fileExists(atPath: DKPaths.installBackupOnFlag) }
-        set {
-            if newValue {
-                FileManager.default.createFile(atPath: DKPaths.installBackupOnFlag, contents: Data())
-            } else {
-                try? FileManager.default.removeItem(atPath: DKPaths.installBackupOnFlag)
-            }
-        }
-    }
+    /// 安装/升级完成后补存本次装上的 DEB
+    var installBackup = false
     /// "仅下载"时默认一并下载依赖
     var includeDependencies = false
     /// 每个包最多保留的版本数，0 表示不限。已下架的版本永远不会被自动清理
     var keepVersions = 0
+
+    init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case autoBackup, installBackup, includeDependencies, keepVersions
+    }
+
+    /// 逐个字段解码，缺的字段用默认值。
+    /// 自动生成的解码遇到缺失的键会整份失败：1.0.x 的 settings.json 没有 installBackup，
+    /// 升级后会把"包含依赖""保留版本数"等用户设置全部重置成默认值。
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        autoBackup = (try? c.decodeIfPresent(Bool.self, forKey: .autoBackup)) ?? false
+        installBackup = (try? c.decodeIfPresent(Bool.self, forKey: .installBackup)) ?? false
+        includeDependencies = (try? c.decodeIfPresent(Bool.self, forKey: .includeDependencies)) ?? false
+        keepVersions = (try? c.decodeIfPresent(Int.self, forKey: .keepVersions)) ?? 0
+    }
 
     static var current: DKSettings {
         get {
@@ -32,14 +40,27 @@ struct DKSettings: Codable {
             if let data = try? JSONEncoder().encode(newValue) {
                 FileManager.default.createFile(atPath: DKPaths.settingsFile, contents: data)
             }
-            // shell 钩子只认这个标记文件
-            let flag = DKPaths.autoBackupOffFlag
-            if newValue.autoBackup {
-                try? FileManager.default.removeItem(atPath: flag)
-            } else {
-                FileManager.default.createFile(atPath: flag, contents: Data())
-            }
         }
+    }
+
+    /// 1.0.x 把开关写成标记文件交给 APT 钩子；换成新机制时把用户已保存的选择搬过来。
+    /// 只在第一次运行做一次，之后删掉旧标记。
+    static func migrateLegacyOnce() {
+        let fm = FileManager.default
+        guard !fm.fileExists(atPath: DKPaths.legacyMigratedFlag) else { return }
+        let hasSettings = fm.fileExists(atPath: DKPaths.settingsFile)
+        let hasInstallFlag = fm.fileExists(atPath: DKPaths.legacyInstallBackupFlag)
+        var settings = current
+        if hasSettings || hasInstallFlag {
+            if hasInstallFlag { settings.installBackup = true }
+            // 1.0.x 默认会建这个"关闭"标记，没有它就说明用户当年打开过开关
+            if !fm.fileExists(atPath: DKPaths.legacyAutoBackupOffFlag) { settings.autoBackup = true }
+            current = settings
+        }
+        for path in [DKPaths.legacyInstallBackupFlag, DKPaths.legacyAutoBackupOffFlag] {
+            try? fm.removeItem(atPath: path)
+        }
+        fm.createFile(atPath: DKPaths.legacyMigratedFlag, contents: Data())
     }
 }
 
@@ -87,6 +108,7 @@ final class ArchiveItem {
         case "download": return DKL("手动下载")
         case "install": return DKL("安装时备份")
         case "apt-cache": return DKL("升级前备份")
+        case "upgrade": return DKL("升级前备份（源下载）")
         case "rebuilt": return DKL("升级前备份（重新打包）")
         default: return DKL("外部文件")
         }
@@ -175,7 +197,8 @@ enum ArchiveStore {
 
     /// 把下载完成并校验过的临时文件存入仓库
     @discardableResult
-    static func save(tempFile: URL, entry: RepoEntry, verified: Bool, sha256: String) throws -> ArchiveItem {
+    static func save(tempFile: URL, entry: RepoEntry, verified: Bool, sha256: String,
+                     origin: String = "download") throws -> ArchiveItem {
         let fm = FileManager.default
         let dir = DKPaths.archiveDir + "/" + entry.package
         try fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
@@ -186,7 +209,7 @@ enum ArchiveStore {
 
         let size = ((try? fm.attributesOfItem(atPath: dest))?[.size] as? NSNumber)?.int64Value ?? 0
         let meta = ArchiveMeta(package: entry.package, version: entry.version, architecture: arch,
-                               name: entry.stanza["Name"], origin: "download", repo: entry.baseURL,
+                               name: entry.stanza["Name"], origin: origin, repo: entry.baseURL,
                                downloadURL: entry.downloadURL?.absoluteString, sha256: sha256,
                                verified: verified, savedAt: Date().timeIntervalSince1970, note: nil)
         let item = ArchiveItem(debPath: dest, meta: meta, size: size)
