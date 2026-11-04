@@ -12,6 +12,8 @@ else
 TARGET := iphone:clang:latest:14.0
 endif
 
+export DEVELOPER_DIR ?= /Applications/Xcode-16.4.app/Contents/Developer
+
 ARCHS = arm64 arm64e
 INSTALL_TARGET_PROCESSES = Sileo
 THEOS_PACKAGE_DIR_NAME = .theos/packages

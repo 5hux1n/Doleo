@@ -9,6 +9,7 @@ struct ControlStanza {
     let orderedKeys: [String]
 
     init(raw: String) {
+        let raw = raw.replacingOccurrences(of: "\r\n", with: "\n")
         self.raw = raw
         var fields = [String: String]()
         var order = [String]()
@@ -59,27 +60,31 @@ struct ControlStanza {
 /// 在大文件里按字节快速定位某个包的段落，避免把整个 Packages 索引解析成字符串
 enum StanzaSearch {
 
-    private static let doubleNewline = Data("\n\n".utf8)
+    private static let paragraphBreaks = [Data("\n\n".utf8), Data("\r\n\r\n".utf8)]
 
     /// 返回 data 中所有 `Package: <name>` 段落的原文
     static func stanzas(in data: Data, package: String) -> [String] {
-        let needle = Data("Package: \(package)\n".utf8)
+        let needle = Data("Package: \(package)".utf8)
         var results = [String]()
         var searchStart = data.startIndex
         while searchStart < data.endIndex,
               let hit = data.range(of: needle, options: [], in: searchStart..<data.endIndex) {
             searchStart = hit.upperBound
+            // 精确匹配包名，并兼容 LF、CRLF 和文件末尾。
+            let tail = hit.upperBound
+            guard tail == data.endIndex || data[tail] == 10
+                || (data[tail] == 13 && tail + 1 < data.endIndex && data[tail + 1] == 10) else { continue }
             // 必须位于行首
             if hit.lowerBound != data.startIndex && data[hit.lowerBound - 1] != UInt8(ascii: "\n") {
                 continue
             }
             let start: Data.Index
-            if let prev = data.range(of: doubleNewline, options: .backwards, in: data.startIndex..<hit.lowerBound) {
+            if let prev = paragraphBreaks.compactMap({ data.range(of: $0, options: .backwards, in: data.startIndex..<hit.lowerBound) }).max(by: { $0.upperBound < $1.upperBound }) {
                 start = prev.upperBound
             } else {
                 start = data.startIndex
             }
-            let end = data.range(of: doubleNewline, options: [], in: hit.lowerBound..<data.endIndex)?.lowerBound ?? data.endIndex
+            let end = paragraphBreaks.compactMap { data.range(of: $0, options: [], in: hit.lowerBound..<data.endIndex)?.lowerBound }.min() ?? data.endIndex
             if let text = String(data: data[start..<end], encoding: .utf8) {
                 results.append(text)
             }
