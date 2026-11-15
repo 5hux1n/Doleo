@@ -23,7 +23,7 @@ Sileo 的 DEB 下载与本地仓库工具。将插件安装包保存在本地，
 
 2. 找到 **99doleo**，改名为 **99doleo.disabled**。
 
-3. 返回 **Sileo**，刷新软件源后更新至 **1.0.3**。
+3. 返回 **Sileo**，刷新软件源后更新至 **1.0.4**。
 
 更新后会清理旧钩子配置，**已保存的 DEB 和设置会保留**。
 
@@ -33,8 +33,8 @@ Sileo 的 DEB 下载与本地仓库工具。将插件安装包保存在本地，
 
 | 环境 | 安装包 |
 | --- | --- |
-| Rootless，iOS 15 及以上 | `Doleo_1.0.3_arm64.deb` |
-| RootHide，iOS 15 及以上 | `Doleo_1.0.3_arm64e.deb` |
+| Rootless，iOS 15 及以上 | `Doleo_1.0.4_arm64.deb` |
+| RootHide，iOS 15 及以上 | `Doleo_1.0.4_arm64e.deb` |
 
 软件包页顶部的 **Doleo** 可打开仓库；插件详情页安装按钮旁的图标提供下载与仓库入口。自动备份两项都默认关闭，需在设置中手动开启。
 
@@ -50,10 +50,10 @@ Sileo 的 DEB 下载与本地仓库工具。将插件安装包保存在本地，
 
 ```sh
 THEOS=/path/to/theos make clean
-LC_ALL=C THEOS=/path/to/theos make package THEOS_PACKAGE_SCHEME=rootless PACKAGE_VERSION=1.0.3 FINALPACKAGE=1
+LC_ALL=C THEOS=/path/to/theos make package THEOS_PACKAGE_SCHEME=rootless PACKAGE_VERSION=1.0.4 FINALPACKAGE=1
 
 THEOS=/path/to/theos-roothide make clean
-LC_ALL=C THEOS=/path/to/theos-roothide make package THEOS_PACKAGE_SCHEME=roothide PACKAGE_VERSION=1.0.3 FINALPACKAGE=1
+LC_ALL=C THEOS=/path/to/theos-roothide make package THEOS_PACKAGE_SCHEME=roothide PACKAGE_VERSION=1.0.4 FINALPACKAGE=1
 ```
 
 最终 DEB 输出至 `dist/`。

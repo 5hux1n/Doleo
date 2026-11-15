@@ -14,14 +14,10 @@ final class DKBridge: NSObject {
               let install = object_getIvar(controller, ivar) as? UIButton,
               let stack = install.superview as? UIStackView,
               let index = stack.arrangedSubviews.firstIndex(of: install) else { return }
-        if let button = objc_getAssociatedObject(install, &buttonKey) as? UIButton {
-            button.tintColor = DKUI.entryTint
-            return
-        }
+        if objc_getAssociatedObject(install, &buttonKey) is UIButton { return }
 
         let button = UIButton(type: .system)
         button.setImage(DKUI.entryIcon, for: .normal)
-        button.tintColor = DKUI.entryTint
         button.accessibilityLabel = DKL("Doleo 仓库")
         button.showsMenuAsPrimaryAction = true
         button.menu = UIMenu(children: [
@@ -58,7 +54,6 @@ final class DKBridge: NSObject {
             DKUI.presentWrapped(DKLibraryViewController(), from: controller)
         }, menu: nil)
         button.accessibilityIdentifier = identifier
-        button.tintColor = DKUI.entryTint
         // UIKit 的右侧按钮数组按从右到左排列。
         items.insert(button, at: wishlist + 1)
         controller.navigationItem.rightBarButtonItems = items
@@ -143,8 +138,6 @@ enum SileoReflection {
 // MARK: - UI 工具
 
 enum DKUI {
-
-    static let entryTint = UIColor(red: 47.0 / 255, green: 128.0 / 255, blue: 237.0 / 255, alpha: 1)
 
     static var entryIcon: UIImage? {
         UIImage(contentsOfFile: DKPaths.rooted("/usr/share/doleo/entry.png"))?.withRenderingMode(.alwaysTemplate)
